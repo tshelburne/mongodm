@@ -1,5 +1,7 @@
 # MongODM - Simplest ODM there is
 
+[![Build Status](https://travis-ci.org/tshelburne/mongodm.svg?branch=master)](https://travis-ci.org/tshelburne/mongodm)
+
 ## Description
 
 MongODM is a simple, low-key interface for mapping a model to a collection. The source code can be understood in an afternoon. It's great for kick-starting a really simple project, or for getting your ideas down quickly before going for a full-blown, feature-heavy solution.
