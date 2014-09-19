@@ -13,7 +13,8 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 Create a simple POJO model:
 
 ```
-// currently, it is required that your model constructor accept attributes as an object - this is the method to map from a model to a document
+// currently, it is required that your model constructor accept attributes 
+// as an object - this is the method to map from a model to a document
 var Article = module.exports = function(attrs) {
 	attrs = attrs || {};
 

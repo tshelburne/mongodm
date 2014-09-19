@@ -25,10 +25,13 @@
   },
   "homepage": "https://github.com/tshelburne/mongodm",
   "devDependencies": {
-    "mocha": "^1.21.4",
-    "should": "^4.0.4"
+    "mocha": "1.x",
+    "should": "4.x"
   },
   "dependencies": {
-    "mongoskin": "^1.x"
+    "mongoskin": "1.x"
+  },
+  "engines": {
+    "node": ">= 0.4.0"
   }
 }
