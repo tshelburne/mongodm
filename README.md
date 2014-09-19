@@ -8,7 +8,7 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 
 ## Installation
 
-`npm install mongodb`
+`npm install mongodm`
 
 ## Usage
 
