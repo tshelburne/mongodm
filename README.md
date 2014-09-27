@@ -60,11 +60,15 @@ odm.articles.save(article, function(err, article) { ... }) // insert and update
 odm.articles.destroy(article, function(err, numRmvd) { ... })
 odm.articles.destroyAll(function(err, numRmvd) { ... })
 
+// model constructor API
 Article.find(idOrObjectQuery, function(err, article) { ... })
 Article.all(function(err, articles) { ... })
+Article.destroyAll(function(err, numRmvd) { ... })
+
+// model instance API
 article.save(function(err, article) { ... }) // insert and update
 article.destroy(function(err, numRmvd) { ... })
-Article.destroyAll(function(err, numRmvd) { ... })
+article.id() // as an alternative to article._id
 ```
 
 ## Tests
