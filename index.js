@@ -85,7 +85,7 @@ Mapper.prototype.find = function(idOrQuery, cb) {
 Mapper.prototype.all = function(cb) {
 	var self = this;
 	this.coll.find({}).toArray(wrap(cb, function toModels(docs) { 
-		if (docs === null) { return []; }
+		if (!exists(docs)) { return []; }
 		return docs.map(self.toModel.bind(self)); 
 	}));
 }
