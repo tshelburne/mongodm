@@ -5,7 +5,8 @@ var assert = require('assert')
   , Model = null
   , conf = require('./config')
   , msDb  = mongoskin.db('mongodb://'+conf.host+':'+conf.port+'/'+conf.name)
-	, odm = require('../index')(conf.host, conf.port, conf.name);
+	, mongodm = require('../index')
+	, odm = mongodm(conf.host, conf.port, conf.name);
 
 after(function(done) {
 	msDb.close(function(err) {
@@ -23,6 +24,41 @@ beforeEach(function() {
 afterEach(function(done) {
 	delete odm.models;
 	msDb.collection('models').remove(done);
+});
+
+describe('initializing the service', function() {
+	var testOdm;
+
+	beforeEach(function() {
+		testOdm = null;
+	});
+
+	afterEach(function checkThatConnectionWorks(done) {
+		testOdm.should.not.equal(null);
+		testOdm.map.should.be.a.instanceof(Function);
+		testOdm.map(getCleanConstructor(), 'models');
+
+		msDb.collection('models').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, result) {
+			testOdm.models.find(result._id, function(err, model) {
+				assert(err === null);
+				model.should.not.equal(null);
+				testOdm.close(done);
+			});
+		});
+	});
+
+	it('accepts a fully formed uri', function() {
+		testOdm = mongodm('mongodb://'+conf.host+':'+conf.port+'/'+conf.name);
+	});
+
+	it('accepts specified db config arguments', function() {
+		testOdm = mongodm(conf.host, conf.port, conf.name);
+	});
+
+	it('accepts username and password arguments');
+
+	it('passes a list of options on to the mongoskin instance');
+
 });
 
 describe('the database service', function() {

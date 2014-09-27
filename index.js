@@ -5,13 +5,35 @@ var mongo = require('mongoskin')
 /**
  * configure the service to connect to your database
  *
- * [host] {String} your db host
- * [port] {String} your db port
- * [name] {String} your db name
+ * hostOrUri {String} a full mongo uri, or your db host
+ * [port] {String} your db port (optional if full uri given)
+ * [name] {String} your db name (optional if full uri given)
+ * [username] {String} your username (optional if full uri given or not needed)
+ * [password] {String} your password (optional if full uri given or not needed)
  * [options] {Object} options to pass along to mongoskin
  */
-module.exports = function(host, port, name, options) {
-	db = mongo.db('mongodb://'+host+':'+port+'/'+name, options);
+module.exports = function(hostOrUri, port, name, username, password, options) {
+	var args = [];
+  for (var i = 0; i < arguments.length; i++) {
+    args.push(arguments[i]);
+  }
+
+  hostOrUri = args.shift();
+  if (args.length > 0) options = args.pop();
+
+  var uri = 'mongodb://'
+
+	if (args.length === 0) { // full uri given
+		uri = hostOrUri;
+	}
+	else {
+		if (args.length === 3) uri += username+'@'; // only username given
+		else if (args.length === 4) uri += username+':'+password+'@'; // username and password given
+
+		uri += hostOrUri+':'+port+'/'+name;
+	}
+
+	db = mongo.db(uri, options);
 	
 	process.on('SIGINT', db.close);
 
