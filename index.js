@@ -1,4 +1,6 @@
-var mongo = require('mongoskin')
+var EventEmitter = require('events').EventEmitter
+  , util = require('util')
+  , mongo = require('mongoskin')
   , db = null
   , service = {};
 
@@ -56,6 +58,7 @@ service.map = function(ctor, coll) {
 	ctor.all        = Mapper.prototype.all.bind(mapper);
 	ctor.create     = Mapper.prototype.save.bind(mapper);
 	ctor.destroyAll = Mapper.prototype.destroyAll.bind(mapper);
+	ctor.on         = EventEmitter.prototype.on.bind(mapper);
 
 	// put instance methods on the prototype
 	ctor.prototype.save    = function(cb) { mapper.save(this, cb); }
@@ -72,6 +75,8 @@ service.map = function(ctor, coll) {
 service.close = function(cb) {
 	db.close(cb);
 }
+
+util.inherits(Mapper, EventEmitter);
 
 /**
  * a basic mapper to handle mapping a set of properties between documents of a 
@@ -121,18 +126,26 @@ Mapper.prototype.all = function(cb) {
  *   as the second argument upon success
  */
 Mapper.prototype.save = function(model, cb) {
-	if (!(model instanceof this.ctor)) {
-		model = this.toModel(model);
+	var self = this;
+	if (!(model instanceof self.ctor)) { // to support Ctor.create, we need to make sure we have a model instance
+		model = self.toModel(model);
 	}
-	var doc = this.toDoc(model);
+	self.emit('saving', model);
+	var doc = self.toDoc(model);
 	if (exists(model._id)) {
-		this.coll.updateById(model._id, doc, wrap(cb, function returnModel() {
+		self.emit('updating', model);
+		self.coll.updateById(model._id, doc, wrap(cb, function returnModel() {
+			self.emit('updated', model);
+			self.emit('saved', model);
 			return model;
 		}));
 	}
 	else {
-		this.coll.insert(doc, { w: 1 }, wrap(cb, function addIdAndReturnModel(results) {
+		self.emit('creating', model);
+		self.coll.insert(doc, { w: 1 }, wrap(cb, function addIdAndReturnModel(results) {
 			model._id = results[0]._id;
+			self.emit('created', model);
+			self.emit('saved', model);
 			return model;
 		}));
 	}
@@ -146,7 +159,12 @@ Mapper.prototype.save = function(model, cb) {
  *   removed as the second argument upon success
  */
 Mapper.prototype.destroy = function(model, cb) {
-	this.coll.removeById(model._id, wrap(cb));
+	var self = this;
+	self.emit('destroying', model);
+	this.coll.removeById(model._id, function(err, result) {
+		self.emit('destroyed', model);
+		wrap(cb)(err, result);
+	});
 }
 
 /**

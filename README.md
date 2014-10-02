@@ -6,6 +6,12 @@
 
 MongODM is a simple, low-key interface for mapping a model to a collection. The source code can be understood in an afternoon. It's great for kick-starting a really simple project, or for getting your ideas down quickly before going for a full-blown, feature-heavy solution.
 
+## Features
+
+- POJO registration 
+- ActiveRecord-like interface extension
+- Evented lifecycle
+
 ## Installation
 
 `npm install mongodm`
@@ -71,6 +77,23 @@ article.save(function(err, article) { ... }) // insert and update
 article.destroy(function(err, numRmvd) { ... })
 article.id() // as an alternative to article._id
 ```
+
+## Events
+
+Both the ODM object and the model emit lifecycle events that can be listened to with the following interface:
+
+```
+odm.articles.on('event', function(article) { ... })
+
+Article.on('event', function(article) { ... })
+```
+
+The events that are fired are:
+
+- `creating` | `created`
+- `updating` | `updated`
+- `saving` | `saved` (for both create and update actions)
+- `destroying` | `destroyed` (`destroy` only, not on `destroyAll`)
 
 ## Tests
 
