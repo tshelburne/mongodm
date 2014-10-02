@@ -54,6 +54,7 @@ service.map = function(ctor, coll) {
 	// put class methods on the constructor	
 	ctor.find       = Mapper.prototype.find.bind(mapper);
 	ctor.all        = Mapper.prototype.all.bind(mapper);
+	ctor.create     = Mapper.prototype.save.bind(mapper);
 	ctor.destroyAll = Mapper.prototype.destroyAll.bind(mapper);
 
 	// put instance methods on the prototype
@@ -120,6 +121,9 @@ Mapper.prototype.all = function(cb) {
  *   as the second argument upon success
  */
 Mapper.prototype.save = function(model, cb) {
+	if (!(model instanceof this.ctor)) {
+		model = this.toModel(model);
+	}
 	var doc = this.toDoc(model);
 	if (exists(model._id)) {
 		this.coll.updateById(model._id, doc, wrap(cb, function returnModel() {

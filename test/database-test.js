@@ -248,7 +248,7 @@ describe('a model mapped into the database service', function() {
 	describe('when mapping a model to a collection', function() {
 
 		it('updates the model interface', function() {
-			Model.should.have.keys('find', 'all', 'destroyAll');
+			Model.should.have.keys('find', 'all', 'create', 'destroyAll');
 		});
 
 		it('updates the model prototype interface', function() {
@@ -325,6 +325,26 @@ describe('a model mapped into the database service', function() {
 	});
 
 	describe('when saving models', function() {
+
+		it('creates a new model and returns the result', function(done) {
+			var model = Model.create({prop1: 1}, function(err, model) {
+				assert(err === null);
+
+				model.should.be.an.instanceof(Model);
+				model.id().should.not.equal(null);
+				done();
+			});
+		});
+
+		it('inserts new models to the db', function(done) {
+			var model = Model.create({prop1: 1}, function(err, model) {
+				assert(err === null);
+				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
+					doc.should.have.properties({prop1: 1, prop2: null, prop3: null});
+					done();
+				});
+			});
+		});
 
 		it('inserts new models to the db', function(done) {
 			var model = new Model({prop1: 1});

@@ -63,6 +63,7 @@ odm.articles.destroyAll(function(err, numRmvd) { ... })
 // model constructor API
 Article.find(idOrObjectQuery, function(err, article) { ... })
 Article.all(function(err, articles) { ... })
+Article.create({ ... }, function(err, articles) { ... })
 Article.destroyAll(function(err, numRmvd) { ... })
 
 // model instance API
