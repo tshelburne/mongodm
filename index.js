@@ -185,9 +185,7 @@ Mapper.prototype.destroyAll = function(cb) {
  */
 Mapper.prototype.toModel = function(doc) {
 	if (!exists(doc)) { return null; }
-	var model = new this.ctor(doc);
-	model._id = doc._id;
-	return model;
+	return Object.keys(doc).reduce(apply(map, doc), new this.ctor());
 }
 
 /**
@@ -198,10 +196,19 @@ Mapper.prototype.toModel = function(doc) {
  */
 Mapper.prototype.toDoc = function(model) {
 	if (!exists(model)) { return null; }
-	return this.props.reduce(function addModelPropToDoc(doc, prop) {
-		doc[prop] = model[prop];
-		return doc;
-	}, {});
+	return this.props.reduce(apply(map, model), {});
+}
+
+/**
+ * maps the property from one object to another
+ * 
+ * sender {Object} the object to map from
+ * receiver {Object} the object to map to
+ * prop {String} the property to map
+ */
+function map(sender, receiver, prop) {
+	receiver[prop] = sender[prop];
+	return receiver;
 }
 
 /**
@@ -226,4 +233,15 @@ function wrap(cb, map) {
  */
 function exists(value) {
 	return value !== null && value !== undefined;
+}
+
+/**
+ * poor-man's partial application - pass arguments following fn 
+ *
+ * fn {Function} the function being partially applied
+ */
+function apply(fn) {
+	var args = Array.prototype.slice.call(arguments, 1);
+	args.unshift(this);
+	return Function.prototype.bind.apply(fn, args);
 }

@@ -21,14 +21,10 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 Create a simple POJO model:
 
 ```
-// currently, it is required that your model constructor accept attributes 
-// as an object - this is the method to map from a model to a document
-var Article = module.exports = function(attrs) {
-	attrs = attrs || {};
-
-	this.title = attrs.title;
-	this.body  = attrs.body;
-	this.date  = attrs.date;
+var Article = module.exports = function(title, body, date) {
+	this.title = title;
+	this.body  = body;
+	this.date  = date;
 }
 ```
 
@@ -38,7 +34,11 @@ Map the model to a collection:
 var odm = require('mongodm')('localhost', 27017, 'my-db-name'),
   , Article = require('./models/articles');
 
+// this reads the persistable properties from a constructed instance
 odm.map(Article, 'articles');
+
+// alternatively, you can specify the properties to persist
+odm.map(Article, 'articles', 'title', 'date');
 ```
 
 Access the models from the odm object:

@@ -27,11 +27,9 @@ exports.clearDbs = function(done) {
 };
 
 function getCleanConstructor() {
-	return function TestModel(attrs) {
-		attrs = attrs || {};
-
-		this.prop1 = attrs.prop1 || null;
-		this.prop2 = attrs.prop2 || null;
-		this.prop3 = attrs.prop3 || null;
+	return function TestModel(prop1, prop2, prop3) {
+		this.prop1 = prop1 || null;
+		this.prop2 = prop2 || null;
+		this.prop3 = prop3 || null;
 	};
 }
