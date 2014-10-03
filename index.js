@@ -13,6 +13,7 @@ var EventEmitter = require('events').EventEmitter
  * [username] {String} your username (optional if full uri given or not needed)
  * [password] {String} your password (optional if full uri given or not needed)
  * [options] {Object} options to pass along to mongoskin
+ * @returns {Object} the instance of the Mapper
  */
 module.exports = function(hostOrUri, port, name, username, password, options) {
 	var args = [];
@@ -82,9 +83,9 @@ util.inherits(Mapper, EventEmitter);
  * a basic mapper to handle mapping a set of properties between documents of a 
  * given constructor and collection
  *
- * [ctor] {Function} constructor being mapped
- * [coll] {String} collection name
- * [props] {Array} all properties that will be mapped to the database
+ * ctor {Function} constructor being mapped
+ * coll {String} collection name
+ * props {Array} all properties that will be mapped to the database
  */
 function Mapper(ctor, coll, props) {
 	this.ctor = ctor;
@@ -95,7 +96,7 @@ function Mapper(ctor, coll, props) {
 /**
  * find a model by id or by query
  *
- * [idOrQuery] {String|Object} the id as a string, or a standard mongo query object
+ * idOrQuery {String|Object} the id as a string, or a standard mongo query object
  * [cb] {Function} a standard node callback which will receive the model as the second
  *   argument upon success
  */
@@ -121,15 +122,14 @@ Mapper.prototype.all = function(cb) {
 /**
  * save or update a model
  *
- * [model] {Object} the model to persist
+ * modelOrHash {Object} the model to persist; alternatively, it can be passed a hash that will be mapped to a model
  * [cb] {Function} a standard node callback which will receive the most up-to-date model 
  *   as the second argument upon success
  */
-Mapper.prototype.save = function(model, cb) {
-	var self = this;
-	if (!(model instanceof self.ctor)) { // to support Ctor.create, we need to make sure we have a model instance
-		model = self.toModel(model);
-	}
+Mapper.prototype.save = function(modelOrHash, cb) {
+	var self = this
+	  , model = (modelOrHash instanceof self.ctor) ? modelOrHash : self.toModel(modelOrHash);
+
 	self.emit('saving', model);
 	var doc = self.toDoc(model);
 	if (exists(model._id)) {
@@ -154,7 +154,7 @@ Mapper.prototype.save = function(model, cb) {
 /**
  * destroy a model
  *
- * [model] {Object} the model to destroy
+ * model {Object} the model to destroy
  * [cb] {Function} a standard node callback which will receive the number of documents
  *   removed as the second argument upon success
  */
@@ -180,28 +180,47 @@ Mapper.prototype.destroyAll = function(cb) {
 /**
  * maps a document from the db to a model of type this.ctor
  *
- * [doc] {Object} the doc to map
+ * doc {Object} the doc to map
  * @returns {Object}
  */
 Mapper.prototype.toModel = function(doc) {
 	if (!exists(doc)) { return null; }
-	var model = new this.ctor(doc);
-	model._id = doc._id;
-	return model;
+	return map(doc, this.new(doc));
 }
 
 /**
  * maps a model to a document as described by this.props
  *
- * [model] {Object} the model to map
+ * model {Object} the model to map
  * @returns {Object}
  */
 Mapper.prototype.toDoc = function(model) {
 	if (!exists(model)) { return null; }
-	return this.props.reduce(function addModelPropToDoc(doc, prop) {
-		doc[prop] = model[prop];
-		return doc;
-	}, {});
+	return map(model, {}, this.props);
+}
+
+/**
+ * returns a newly-created instance of the ctor (exists mainly to be overridden)
+ *
+ * @returns {Object}
+ */
+Mapper.prototype.new = function() {
+	return new this.ctor();
+};
+
+/**
+ * maps the property from one object to another
+ * 
+ * sender {Object} the object to map from
+ * receiver {Object} the object to map to
+ * props {Array} the properties to map
+ */
+function map(sender, receiver, props) {
+	props = props || Object.keys(sender);
+	return props.reduce(function(updated, prop) {
+		updated[prop] = sender[prop];
+		return updated;
+	}, receiver);
 }
 
 /**
@@ -223,6 +242,9 @@ function wrap(cb, map) {
 
 /**
  * simple null|undefined check
+ *
+ * value {mixed} value to test
+ * @returns {Boolean}
  */
 function exists(value) {
 	return value !== null && value !== undefined;

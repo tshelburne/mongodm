@@ -24,7 +24,7 @@ describe('the database service', function() {
 		});
 
 		it('builds an object with a mappable interface', function() {
-			odm.models.__proto__.should.have.keys('find', 'all', 'save', 'destroy', 'destroyAll', 'toModel', 'toDoc');
+			odm.models.__proto__.should.have.keys('find', 'all', 'save', 'destroy', 'destroyAll', 'toModel', 'toDoc', 'new');
 		});
 
 		it('maps based on the object keys of an instance of the constructor', function() {
@@ -43,9 +43,10 @@ describe('the database service', function() {
 
 	describe('when finding models', function() {
 
-		it('calls back with null for an unfound document', function() {
+		it('calls back with null for an unfound document', function(done) {
 			odm.models.find('bad-id', function(err, model) {
 				assert(model === null);
+				done();
 			});
 		}); 
 
@@ -111,7 +112,7 @@ describe('the database service', function() {
 	describe('when saving models', function() {
 
 		it('inserts new models to the db', function(done) {
-			odm.models.save(new Model({prop1: 1}), function(err, model) {
+			odm.models.save(new Model(1), function(err, model) {
 				assert(err === null);
 				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
 					doc.should.have.properties({prop1: 1, prop2: null, prop3: null});
@@ -121,7 +122,7 @@ describe('the database service', function() {
 		});
 
 		it('appends an _id to new models', function(done) {
-			odm.models.save(new Model({prop1: 1}), function(err, model) {
+			odm.models.save(new Model(1), function(err, model) {
 				assert(err === null);
 				model.should.have.property('_id');
 				model._id.should.be.an.Object;
@@ -146,7 +147,7 @@ describe('the database service', function() {
 
 		// this just means your program won't break because you haven't added a callback
 		it('allows saving without a callback', function() {
-			odm.models.save(new Model({prop1: 1}));
+			odm.models.save(new Model(1));
 		});
 
 	});
@@ -154,8 +155,8 @@ describe('the database service', function() {
 	describe('when destroying models', function() {
 
 		it('destroys a given model', function(done) {
-			odm.models.save(new Model({prop1: 1}), function(err, model1) {
-				odm.models.save(new Model({prop1: 2}), function(err, model2) {
+			odm.models.save(new Model(1), function(err, model1) {
+				odm.models.save(new Model(null, 2), function(err, model2) {
 					odm.models.destroy(model1, function(err, numRemoved) {
 						assert(err === null);
 						assert(numRemoved === 1);
@@ -169,8 +170,8 @@ describe('the database service', function() {
 		});
 
 		it('destroys all models', function(done) {
-			odm.models.save(new Model({prop1: 1}), function(err, model1) {
-				odm.models.save(new Model({prop1: 2}), function(err, model2) {
+			odm.models.save(new Model(1), function(err, model1) {
+				odm.models.save(new Model(null, 2), function(err, model2) {
 					odm.models.destroyAll(function(err, numRemoved) {
 						assert(err === null);
 						assert(numRemoved === 2);
@@ -185,8 +186,8 @@ describe('the database service', function() {
 
 		// this just means your program won't break because you haven't added a callback
 		it('allows destroying without a callback', function(done) {
-			odm.models.save(new Model({prop1: 1}), function(err, model1) {
-				odm.models.save(new Model({prop1: 2}), function(err, model2) {
+			odm.models.save(new Model(1), function(err, model1) {
+				odm.models.save(new Model(null, 2), function(err, model2) {
 					odm.models.destroy(model1);
 					odm.models.destroyAll();
 					done();

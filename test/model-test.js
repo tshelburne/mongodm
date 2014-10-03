@@ -31,9 +31,10 @@ describe('a model mapped into the database service', function() {
 
 	describe('when finding models', function() {
 
-		it('calls back with null for an unfound document', function() {
+		it('calls back with null for an unfound document', function(done) {
 			Model.find('bad-id', function(err, model) {
 				assert(model === null);
+				done();
 			});
 		}); 
 
@@ -119,7 +120,7 @@ describe('a model mapped into the database service', function() {
 		});
 
 		it('inserts new models to the db', function(done) {
-			var model = new Model({prop1: 1});
+			var model = new Model(1);
 			model.save(function(err, model) {
 				assert(err === null);
 				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
@@ -130,7 +131,7 @@ describe('a model mapped into the database service', function() {
 		});
 
 		it('appends an _id to new models (accessible via #id)', function(done) {
-			var model = new Model({prop1: 1});
+			var model = new Model(1);
 			model.save(function(err, model) {
 				assert(err === null);
 				model.should.have.property('_id');
@@ -157,7 +158,7 @@ describe('a model mapped into the database service', function() {
 
 		// this just means your program won't break because you haven't added a callback
 		it('allows saving without a callback', function() {
-			var model1 = new Model({prop1: 1});
+			var model1 = new Model(1);
 			model1.save();
 		});
 
@@ -166,9 +167,9 @@ describe('a model mapped into the database service', function() {
 	describe('when destroying models', function() {
 
 		it('destroys a given model', function(done) {
-			var model1 = new Model({prop1: 1});
+			var model1 = new Model(1);
 			model1.save(function(err, model1) {
-				var model2 = new Model({prop1: 2});
+				var model2 = new Model(null, 2);
 				model2.save(function(err, model2) {
 					model1.destroy(function(err, numRemoved) {
 						assert(err === null);
@@ -183,9 +184,9 @@ describe('a model mapped into the database service', function() {
 		});
 
 		it('destroys all models', function(done) {
-			var model1 = new Model({prop1: 1});
+			var model1 = new Model(1);
 			model1.save(function(err, model1) {
-				var model2 = new Model({prop1: 2});
+				var model2 = new Model(null, 2);
 				model2.save(function(err, model2) {
 					Model.destroyAll(function(err, numRemoved) {
 						assert(err === null);
@@ -201,9 +202,9 @@ describe('a model mapped into the database service', function() {
 
 		// this just means your program won't break because you haven't added a callback
 		it('allows destroying without a callback', function(done) {
-			var model1 = new Model({prop1: 1});
+			var model1 = new Model(1);
 			model1.save(function(err, model1) {
-				var model2 = new Model({prop1: 2});
+				var model2 = new Model(null, 2);
 				model2.save(function(err, model2) {
 					model1.destroy();
 					Model.destroyAll();

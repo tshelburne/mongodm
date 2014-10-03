@@ -6,6 +6,44 @@ var assert = require('assert')
   , odm = support.odm
   , Model = null;
 
+describe('mapping events', function() {
+
+	after(support.closeDbs);
+
+	beforeEach(function() {
+		Model = function(notMapped) {
+			this.mapped = null;
+			this.notMapped = notMapped;
+		};
+		odm.map(Model, 'models', 'mapped');
+	});
+
+	afterEach(support.clearDbs);
+
+	it('maps a document to a model without a registered listener', function(done) {
+		Model.create({mapped: 'persisted'}, function(err, model) {
+			assert(err === null);
+			model.mapped.should.equal('persisted');
+			assert(model.notMapped === undefined);
+			done();
+		});
+	});
+
+	it('maps a document to a model according to a set new function', function(done) {
+		odm.models.new = function(doc) {
+			return new Model('injected');
+		};
+
+		Model.create({mapped: 'persisted'}, function(err, model) {
+			assert(err === null);
+			model.mapped.should.equal('persisted');
+			model.notMapped.should.equal('injected');
+			done();
+		});
+	});
+
+});
+
 describe('database events', function() {
 
 	after(support.closeDbs);

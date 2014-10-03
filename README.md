@@ -2,9 +2,11 @@
 
 [![Build Status](https://travis-ci.org/tshelburne/mongodm.svg?branch=master)](https://travis-ci.org/tshelburne/mongodm)
 
+
 ## Description
 
 MongODM is a simple, low-key interface for mapping a model to a collection. The source code can be understood in an afternoon. It's great for kick-starting a really simple project, or for getting your ideas down quickly before going for a full-blown, feature-heavy solution.
+
 
 ## Features
 
@@ -12,81 +14,81 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 - ActiveRecord-like interface extension
 - Evented lifecycle
 
+
 ## Installation
 
 `npm install mongodm`
+
 
 ## Usage
 
 Create a simple POJO model:
 
-```
-// currently, it is required that your model constructor accept attributes 
-// as an object - this is the method to map from a model to a document
-var Article = module.exports = function(attrs) {
-	attrs = attrs || {};
-
-	this.title = attrs.title;
-	this.body  = attrs.body;
-	this.date  = attrs.date;
-}
-```
+	var Article = module.exports = function(title, body, date) {
+		this.title = title;
+		this.body  = body;
+		this.date  = date;
+	}
 
 Map the model to a collection:
 
-```
-var odm = require('mongodm')('localhost', 27017, 'my-db-name'),
-  , Article = require('./models/articles');
+	var odm = require('mongodm')('localhost', 27017, 'my-db-name'),
+	  , Article = require('./models/articles');
 
-odm.map(Article, 'articles');
-```
+	// this reads the persistable properties from a constructed instance
+	odm.map(Article, 'articles');
+
+	// alternatively, you can specify the properties to persist
+	odm.map(Article, 'articles', 'title', 'date');
 
 Access the models from the odm object:
 
-```
-odm.articles.find('some-id', function(err, article) {
-	// do something spectacular
-});
-```
+	odm.articles.find('some-id', function(err, article) {
+		// do something spectacular
+	});
 
 Or from the model constructor (ActiveRecord-like interface):
 
-```
-Article.find('some-id', function(err, article) {
-	// well that's kind of neat
-});
-```
+	Article.find('some-id', function(err, article) {
+		// well that's kind of neat
+	});
 
 The interface is simple:
 
-```
-odm.articles.find(idOrObjectQuery, function(err, article) { ... })
-odm.articles.all(function(err, articles) { ... })
-odm.articles.save(article, function(err, article) { ... }) // insert and update
-odm.articles.destroy(article, function(err, numRmvd) { ... })
-odm.articles.destroyAll(function(err, numRmvd) { ... })
+	odm.articles.find(idOrObjectQuery, function(err, article) { ... })
+	odm.articles.all(function(err, articles) { ... })
+	odm.articles.save(article, function(err, article) { ... }) // insert and update
+	odm.articles.destroy(article, function(err, numRmvd) { ... })
+	odm.articles.destroyAll(function(err, numRmvd) { ... })
 
-// model constructor API
-Article.find(idOrObjectQuery, function(err, article) { ... })
-Article.all(function(err, articles) { ... })
-Article.create({ ... }, function(err, articles) { ... })
-Article.destroyAll(function(err, numRmvd) { ... })
+	// model constructor API
+	Article.find(idOrObjectQuery, function(err, article) { ... })
+	Article.all(function(err, articles) { ... })
+	Article.create({ ... }, function(err, articles) { ... })
+	Article.destroyAll(function(err, numRmvd) { ... })
 
-// model instance API
-article.save(function(err, article) { ... }) // insert and update
-article.destroy(function(err, numRmvd) { ... })
-article.id() // as an alternative to article._id
-```
+	// model instance API
+	article.save(function(err, article) { ... }) // insert and update
+	article.destroy(function(err, numRmvd) { ... })
+	article.id() // as an alternative to article._id
+
+
+## Constructor arguments
+
+Any values stored in the database document are mapped to an instance of your model created with `new Model()`. However, if you need to call the constructor in a specific way, you can override this on the odm interface with the `new` function:
+
+	odm.articles.new = function(doc) {
+		return new Article(doc.body); // maybe our Article generates a summary at instantiation
+	}
+
 
 ## Events
 
 Both the ODM object and the model emit lifecycle events that can be listened to with the following interface:
 
-```
-odm.articles.on('event', function(article) { ... })
+	odm.articles.on('event', function(article) { ... })
 
-Article.on('event', function(article) { ... })
-```
+	Article.on('event', function(article) { ... })
 
 The events that are fired are:
 
@@ -95,6 +97,7 @@ The events that are fired are:
 - `saving` | `saved` (for both create and update actions)
 - `destroying` | `destroyed` (`destroy` only, not on `destroyAll`)
 
+
 ## Tests
 
 1. `mongod`
@@ -102,9 +105,11 @@ The events that are fired are:
 
 The code interface is decently tested, since it's so small. The tests are currently depending on the proper functioning of mongoskin - not too excited about that, but I'd rather see the library actually working with the database than mock out calls at this low level.
 
+
 ## Contribution
 
 Fork and PR.
+
 
 ## License
 
