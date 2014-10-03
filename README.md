@@ -78,6 +78,16 @@ article.destroy(function(err, numRmvd) { ... })
 article.id() // as an alternative to article._id
 ```
 
+## Constructor arguments
+
+Any values stored in the database document are mapped to an instance of your model created with `new Model()`. However, if you need to call the constructor in a specific way, you can override this on the odm interface with the `new` function:
+
+```
+odm.articles.new = function(doc) {
+	return new Article(doc.body); // maybe our Article generates a summary at instantiation
+}
+```
+
 ## Events
 
 Both the ODM object and the model emit lifecycle events that can be listened to with the following interface:

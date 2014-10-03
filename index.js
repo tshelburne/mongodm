@@ -185,7 +185,7 @@ Mapper.prototype.destroyAll = function(cb) {
  */
 Mapper.prototype.toModel = function(doc) {
 	if (!exists(doc)) { return null; }
-	return Object.keys(doc).reduce(apply(map, doc), new this.ctor());
+	return Object.keys(doc).reduce(apply(map, doc), this.new());
 }
 
 /**
@@ -198,6 +198,15 @@ Mapper.prototype.toDoc = function(model) {
 	if (!exists(model)) { return null; }
 	return this.props.reduce(apply(map, model), {});
 }
+
+/**
+ * returns a newly-created instance of the ctor (exists mainly to be overridden)
+ *
+ * @returns {Object}
+ */
+Mapper.prototype.new = function() {
+	return new this.ctor();
+};
 
 /**
  * maps the property from one object to another
