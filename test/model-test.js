@@ -31,9 +31,10 @@ describe('a model mapped into the database service', function() {
 
 	describe('when finding models', function() {
 
-		it('calls back with null for an unfound document', function() {
+		it('calls back with null for an unfound document', function(done) {
 			Model.find('bad-id', function(err, model) {
 				assert(model === null);
+				done();
 			});
 		}); 
 
