@@ -16,6 +16,7 @@
     "odm",
     "orm",
     "database",
+    "datamapper",
     "activerecord"
   ],
   "author": "Tim Shelburne <shelburt02@gmail.com>",
