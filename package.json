@@ -15,6 +15,7 @@
     "mongo",
     "odm",
     "orm",
+    "ddd",
     "database",
     "datamapper",
     "activerecord"
