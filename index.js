@@ -16,10 +16,7 @@ var EventEmitter = require('events').EventEmitter,
  * @returns {Object} the instance of the Mapper
  */
 module.exports = function(hostOrUri, port, name, username, password, options) {
-  var args = [];
-  for (var i = 0; i < arguments.length; i++) {
-    args.push(arguments[i]);
-  }
+  var args = Array.prototype.slice.call(arguments);
 
   hostOrUri = args.shift();
   if (args.length > 0) options = args.pop();
@@ -107,19 +104,24 @@ function Mapper(ctor, coll, props) {
  */
 Mapper.prototype.find = function(idOrQuery, cb) {
   var query = (typeof idOrQuery === 'string') ? {_id: mongo.helper.toObjectID(idOrQuery)} : idOrQuery;
+
   this.coll.findOne(query, wrap(cb, this.toModel.bind(this)));
 };
 
 /**
  * find all models
  *
+ * [query] {Object} a query to apply to the all request
+ * [options] {Object} options to pass to find for modifying the query
  * [cb] {Function} a standard node callback which will receive the models as the second
  *   argument upon success
  */
-Mapper.prototype.all = function(cb) {
-  var self = this;
+Mapper.prototype.all = function() {
+  var self = this,
+    args = Array.prototype.slice.call(arguments);
+    cb = args.pop();
 
-  this.coll.find({}).toArray(wrap(cb, function toModels(docs) {
+  this.coll.find.apply(this.coll, args).toArray(wrap(cb, function toModels(docs) {
     if (!exists(docs)) { return []; }
     return docs.map(self.toModel.bind(self));
   }));
