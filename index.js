@@ -50,8 +50,7 @@ module.exports = function(hostOrUri, port, name, username, password, options) {
  * [arguments] any additional argument will map properties to documents
  */
 service.map = function(ctor, coll) {
-  var props = arguments.length > 2 ? Array.prototype.slice.call(arguments, 2) :
-    Object.keys(new ctor());
+  var props = arguments.length > 2 ? Array.prototype.slice.call(arguments, 2) : Object.keys(new ctor());
   var mapper = service[coll] = new Mapper(ctor, coll, props);
 
   // put class methods on the constructor
@@ -107,9 +106,7 @@ function Mapper(ctor, coll, props) {
  *   argument upon success
  */
 Mapper.prototype.find = function(idOrQuery, cb) {
-  var query = (typeof idOrQuery === 'string') ? {
-    _id: mongo.helper.toObjectID(idOrQuery)
-  } : idOrQuery;
+  var query = (typeof idOrQuery === 'string') ? {_id: mongo.helper.toObjectID(idOrQuery)} : idOrQuery;
   this.coll.findOne(query, wrap(cb, this.toModel.bind(this)));
 };
 
@@ -121,10 +118,9 @@ Mapper.prototype.find = function(idOrQuery, cb) {
  */
 Mapper.prototype.all = function(cb) {
   var self = this;
+
   this.coll.find({}).toArray(wrap(cb, function toModels(docs) {
-    if (!exists(docs)) {
-      return [];
-    }
+    if (!exists(docs)) { return []; }
     return docs.map(self.toModel.bind(self));
   }));
 };
@@ -138,8 +134,7 @@ Mapper.prototype.all = function(cb) {
  */
 Mapper.prototype.save = function(modelOrHash, cb) {
   var self = this,
-    model = (modelOrHash instanceof self.ctor) ? modelOrHash : self.toModel(
-      modelOrHash);
+    model = (modelOrHash instanceof self.ctor) ? modelOrHash : self.toModel(modelOrHash);
 
   self.emit('saving', model);
   var doc = self.toDoc(model);
@@ -152,9 +147,7 @@ Mapper.prototype.save = function(modelOrHash, cb) {
     }));
   } else {
     self.emit('creating', model);
-    self.coll.insert(doc, {
-      w: 1
-    }, wrap(cb, function addIdAndReturnModel(results) {
+    self.coll.insert(doc, {w: 1}, wrap(cb, function addIdAndReturnModel(results) {
       model._id = results[0]._id;
       self.emit('created', model);
       self.emit('saved', model);
@@ -196,9 +189,8 @@ Mapper.prototype.destroyAll = function(cb) {
  * @returns {Object}
  */
 Mapper.prototype.toModel = function(doc) {
-  if (!exists(doc)) {
-    return null;
-  }
+  if (!exists(doc)) { return null; }
+
   return map(doc, this.new(doc));
 };
 
@@ -209,9 +201,8 @@ Mapper.prototype.toModel = function(doc) {
  * @returns {Object}
  */
 Mapper.prototype.toDoc = function(model) {
-  if (!exists(model)) {
-    return null;
-  }
+  if (!exists(model)) { return null; }
+
   return map(model, {}, this.props);
 };
 
