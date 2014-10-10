@@ -73,6 +73,13 @@ The interface is simple:
 	article.id() // as an alternative to article._id
 
 
+## Finding by `all`
+
+In addition to a callback, `all` accepts two optional arguments as the first parameters: `query` and `options`. These are the same as in the [low-level driver](https://github.com/mongodb/node-mongodb-native/blob/master/Readme.md#find).
+
+Note: If you only want to pass in the options object, you must pass an empty query object as well - `Model.all({}, {sort: {prop: 'weight'}}, cb)`
+
+
 ## Constructor arguments
 
 Any values stored in the database document are mapped to an instance of your model created with `new Model()`. However, if you need to call the constructor in a specific way, you can override this on the odm interface with the `new` function:
