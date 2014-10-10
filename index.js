@@ -113,13 +113,20 @@ Mapper.prototype.find = function(idOrQuery, cb) {
 /**
  * find all models
  *
+ * [query] {Object} a query to apply to the all request
  * [cb] {Function} a standard node callback which will receive the models as the second
  *   argument upon success
  */
-Mapper.prototype.all = function(cb) {
-  var self = this;
+Mapper.prototype.all = function(query, cb) {
+  var self = this,
+    query = query || {};
 
-  this.coll.find({}).toArray(wrap(cb, function toModels(docs) {
+  if (typeof query === 'function') {
+    cb = query;
+    query = {};
+  }
+
+  this.coll.find(query).toArray(wrap(cb, function toModels(docs) {
     if (!exists(docs)) { return []; }
     return docs.map(self.toModel.bind(self));
   }));

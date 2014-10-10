@@ -98,6 +98,19 @@ describe('the database service', function() {
 			});
 		});
 
+		it('calls back with all models in a collection modified by a query', function(done) {
+			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
+				odm.models.all({prop1: {'$gt': 1}}, function(err, models) {
+					assert(err === null);
+					models.should.be.an.Array;
+					models.should.have.length(2);
+					models[0].prop1.should.equal(2);
+					models[1].prop1.should.equal(3);
+					done();
+				});
+			});
+		});
+
 		// this just means your program won't break because you haven't added a callback
 		it('allows finding without a callback', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
