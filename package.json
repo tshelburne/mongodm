@@ -30,6 +30,7 @@
     "should": "4.x"
   },
   "dependencies": {
+    "async": "0.x",
     "mongoskin": "1.x"
   },
   "engines": {
