@@ -1,4 +1,6 @@
-"use strict";
+/* global describe, after, beforeEach, afterEach, it, xit */
+
+'use strict';
 
 var assert = require('assert')
   , support = require('./support/common')
@@ -7,7 +9,7 @@ var assert = require('assert')
   , Parent = null
   , Child = null;
 
-describe("relationships", function() {
+describe('relationships', function() {
 
 	after(support.closeDbs);
 	
@@ -22,9 +24,9 @@ describe("relationships", function() {
 	afterEach(support.clearDbs.bind(undefined, 'parents'));
 	afterEach(support.clearDbs.bind(undefined, 'prop1'));
 
-	describe("when writing one to one", function() {
+	describe('when writing one to one', function() {
 		
-		it("creates an embedded relationship", function(done) {
+		it('creates an embedded relationship', function(done) {
 			odm.parents.containsOne(odm.prop1, 'prop1');
 			Parent.create({ prop1: new Child(1) }, function(err, parent) {
 				msDb.collection('parents').findById(parent.id(), function(err, pResult) {
@@ -34,16 +36,17 @@ describe("relationships", function() {
 			});
 		});
 		
-		xit("creates a findsOne relationship", function(done) {
-			odm.parents.findsOne(odm.prop1, 'prop1');
+		it('creates a findsOne relationship', function(done) {
+			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
 			Child.create({ prop1: 1 }, function(err, child) {
 				Parent.create({ prop1: child }, function(err, parent) {
+					assert(!child.parent_id);
 					msDb.collection('parents').findById(parent.id(), function(err, pResult) {
-						assert(pResult.prop1 === null);
+						assert(!pResult.prop1);
 						msDb.collection('prop1').find({parent_id: pResult._id}).toArray(function(err, cResults) {
 							cResults.should.have.length(1);
 							cResults[0].prop1.should.equal(1);
-							cResults[0].parent_id.should.equal(pResult._id);
+							cResults[0].parent_id.should.eql(pResult._id);
 							done();
 						});
 					});
@@ -51,7 +54,7 @@ describe("relationships", function() {
 			});
 		});
 
-		it("creates a hasOne relationship", function(done) {
+		it('creates a hasOne relationship', function(done) {
 			odm.parents.hasOne(odm.prop1, 'prop1');
 			Child.create({ prop1: 1 }, function(err, child) {
 				Parent.create({ prop1: child }, function(err, parent) {
@@ -68,9 +71,9 @@ describe("relationships", function() {
 
 	});
 
-	describe("when writing one to many", function() {
+	describe('when writing one to many', function() {
 		
-		it("creates an embedded relationship", function(done) {
+		it('creates an embedded relationship', function(done) {
 			odm.parents.containsMany(odm.prop1, 'prop1');
 			Parent.create({ prop1: [ new Child(1), new Child(2) ] }, function(err, parent) {
 				msDb.collection('parents').findById(parent.id(), function(err, pResult) {
@@ -82,19 +85,21 @@ describe("relationships", function() {
 			});
 		});
 		
-		xit("creates a findsMany relationship", function(done) {
-			odm.parents.findsMany(odm.prop1, 'prop1');
+		it('creates a findsMany relationship', function(done) {
+			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
 			Child.create({prop1: 1}, function(err, child1) {
 				Child.create({prop1: 2}, function(err, child2) {
 					Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
+						assert(!child1.parent_id);
+						assert(!child2.parent_id);
 						msDb.collection('parents').findById(parent.id(), function(err, pResult) {
-							assert(pResult.prop1 === null);
+							assert(!pResult.prop1);
 							msDb.collection('prop1').find({parent_id: pResult._id}).toArray(function(err, cResults) {
 								cResults.should.have.length(2);
 								cResults[0].prop1.should.equal(1);
-								cResults[0].parent_id.should.equal(pResult._id);
-								cResults[1].prop2.should.equal(2);
-								cResults[0].parent_id.should.equal(pResult._id);
+								cResults[0].parent_id.should.eql(pResult._id);
+								cResults[1].prop1.should.equal(2);
+								cResults[0].parent_id.should.eql(pResult._id);
 								done();
 							});
 						});
@@ -103,7 +108,7 @@ describe("relationships", function() {
 			});
 		});
 
-		it("creates a hasMany relationship", function(done) {
+		it('creates a hasMany relationship', function(done) {
 			odm.parents.hasMany(odm.prop1, 'prop1');
 			Child.create({prop1: 1}, function(err, child1) {
 				Child.create({prop1: 2}, function(err, child2) {
@@ -123,9 +128,9 @@ describe("relationships", function() {
 
 	});
 	
-	describe("when reading one to one", function() {
+	describe('when reading one to one', function() {
 
-		it("resolves an embedded relationship", function(done) {
+		it('resolves an embedded relationship', function(done) {
 			odm.parents.containsOne(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: { prop1: 1, prop2: 2, prop3: 3 } }, function(err, pResult) {
 				Parent.find(pResult._id, function(err, parent) {
@@ -138,10 +143,10 @@ describe("relationships", function() {
 			});
 		});
 		
-		xit("resolves a findsOne relationship", function(done) {
-			odm.parents.findsOne(odm.prop1, 'prop1');
+		it('resolves a findsOne relationship', function(done) {
+			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult) {
-				msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3, parent_id: pResult._id }, function(err, cResult) {
+				msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3, parent_id: pResult._id }, function() {
 					Parent.find(pResult._id, function(err, parent) {
 						parent.prop1.should.be.an.instanceof.Child;
 						parent.prop1.prop1.should.equal(1);
@@ -153,7 +158,7 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves a hasOne relationship", function(done) {
+		it('resolves a hasOne relationship', function(done) {
 			odm.parents.hasOne(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, cResult) {
 				msDb.collection('parents').save({ prop1: cResult._id }, function(err, pResult) {
@@ -168,7 +173,7 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves embedded relationships with all", function(done) {
+		it('resolves embedded relationships with all', function(done) {
 			odm.parents.containsOne(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: { prop1: 1, prop2: 2, prop3: 3 } }, function(err, pResult1) {
 				msDb.collection('parents').save({ prop1: { prop1: 4, prop2: 5, prop3: 6 } }, function(err, pResult2) {
@@ -187,11 +192,34 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves hasOne relationships with all", function(done) {
+		it('resolves findsOne relationships with all', function(done) {
+			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
+			msDb.collection('parents').save({}, function(err, pResult1) {
+				msDb.collection('parents').save({}, function(err, pResult2) {
+					msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3, parent_id: pResult1._id }, function(err, cResult) {
+						msDb.collection('prop1').save({ prop1: 4, prop2: 5, prop3: 6, parent_id: pResult2._id }, function(err, cResult) {
+							Parent.all(function(err, parents) {
+								parents[0].prop1.should.be.an.instanceof.Child;
+								parents[1].prop1.should.be.an.instanceof.Child;
+								parents[0].prop1.prop1.should.equal(1);
+								parents[0].prop1.prop2.should.equal(2);
+								parents[0].prop1.prop3.should.equal(3);
+								parents[1].prop1.prop1.should.equal(4);
+								parents[1].prop1.prop2.should.equal(5);
+								parents[1].prop1.prop3.should.equal(6);
+								done();
+							});
+						});
+					});
+				});
+			});
+		});
+
+		it('resolves hasOne relationships with all', function(done) {
 			odm.parents.hasOne(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, cResult) {
-				msDb.collection('parents').save({ prop1: cResult._id }, function(err, pResult1) {
-					msDb.collection('parents').save({ prop1: cResult._id }, function(err, pResult2) {
+				msDb.collection('parents').save({ prop1: cResult._id }, function() {
+					msDb.collection('parents').save({ prop1: cResult._id }, function() {
 						Parent.all(function(err, parents) {
 							parents[0].prop1.should.be.an.instanceof.Child;
 							parents[1].prop1.should.be.an.instanceof.Child;
@@ -210,9 +238,9 @@ describe("relationships", function() {
 
 	});
 
-	describe("when reading one to many", function() {
+	describe('when reading one to many', function() {
 
-		it("resolves an embedded relationship", function(done) {
+		it('resolves an embedded relationship', function(done) {
 			odm.parents.containsMany(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: [ { prop1: 1 }, { prop1: 2 } ] }, function(err, pResult) {
 				Parent.find(pResult._id, function(err, parent) {
@@ -227,13 +255,13 @@ describe("relationships", function() {
 			});
 		});
 		
-		xit("resolves a findsMany relationship", function(done) {
-			odm.parents.findsMany(odm.prop1, 'prop1');
+		it('resolves a findsMany relationship', function(done) {
+			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult) {
-				msDb.collection('prop1').save({ prop1: 1, parent_id: pResult._id }, function(err, c1Result) {
-					msDb.collection('prop1').save({ prop1: 2, parent_id: pResult._id }, function(err, c2Result) {
+				msDb.collection('prop1').save({ prop1: 1, parent_id: pResult._id }, function(err, cResult1) {
+					msDb.collection('prop1').save({ prop1: 2, parent_id: pResult._id }, function(err, cResult2) {
 						Parent.find(pResult._id, function(err, parent) {
-							parent.prop1.should.be.an.Array;
+							parent.prop1.should.have.length(2);
 							parent.prop1.forEach(function(child) {
 								child.should.be.an.instanceof.Child;
 							});
@@ -246,11 +274,11 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves a hasMany relationship", function(done) {
+		it('resolves a hasMany relationship', function(done) {
 			odm.parents.hasMany(odm.prop1, 'prop1');
-			msDb.collection('prop1').save({ prop1: 1 }, function(err, c1Result) {
-				msDb.collection('prop1').save({ prop1: 2 }, function(err, c2Result) {
-					msDb.collection('parents').save({ prop1: [ c1Result._id, c2Result._id ] }, function(err, pResult) {
+			msDb.collection('prop1').save({ prop1: 1 }, function(err, cResult1) {
+				msDb.collection('prop1').save({ prop1: 2 }, function(err, cResult2) {
+					msDb.collection('parents').save({ prop1: [ cResult1._id, cResult2._id ] }, function(err, pResult) {
 							Parent.find(pResult._id, function(err, parent) {
 							parent.prop1.should.be.an.Array;
 							parent.prop1.forEach(function(child) {
@@ -265,7 +293,7 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves embedded relationships with all", function(done) {
+		it('resolves embedded relationships with all', function(done) {
 			odm.parents.containsMany(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: [ { prop1: 1 }, { prop1: 2 } ] }, function(err, pResult1) {
 				msDb.collection('parents').save({prop1: [{prop1: 3}]}, function(err, pResult2) {
@@ -285,12 +313,38 @@ describe("relationships", function() {
 			});
 		});
 
-		it("resolves hasMany relationships with all", function(done) {
+		it('resolves findsMany relationships with all', function(done) {
+			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
+			msDb.collection('parents').save({}, function(err, pResult1) {
+				msDb.collection('parents').save({}, function(err, pResult2) {
+					msDb.collection('prop1').save({ prop1: 1, parent_id: pResult1._id }, function(err, cResult1) {
+						msDb.collection('prop1').save({ prop1: 2, parent_id: pResult2._id }, function(err, cResult2) {
+							msDb.collection('prop1').save({ prop1: 3, parent_id: pResult1._id }, function(err, cResult2) {
+								Parent.all(function(err, parents) {
+									parents.forEach(function(parent) {
+										parent.prop1.should.be.an.Array;
+										parent.prop1.forEach(function(child) {
+											child.should.be.an.instanceof.Child;
+										});
+									});
+									parents[0].prop1[0].prop1.should.equal(1);
+									parents[0].prop1[1].prop1.should.equal(3);
+									parents[1].prop1[0].prop1.should.equal(2);
+									done();
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+
+		it('resolves hasMany relationships with all', function(done) {
 			odm.parents.hasMany(odm.prop1, 'prop1');
-			msDb.collection('prop1').save({ prop1: 1 }, function(err, c1Result) {
-				msDb.collection('prop1').save({ prop1: 2 }, function(err, c2Result) {
-					msDb.collection('parents').save({ prop1: [ c1Result._id, c2Result._id ] }, function(err, pResult1) {
-						msDb.collection('parents').save({prop1: [ c2Result._id ]}, function(err, pResult2) {
+			msDb.collection('prop1').save({ prop1: 1 }, function(err, cResult1) {
+				msDb.collection('prop1').save({ prop1: 2 }, function(err, cResult2) {
+					msDb.collection('parents').save({ prop1: [ cResult1._id, cResult2._id ] }, function(err, pResult1) {
+						msDb.collection('parents').save({prop1: [ cResult2._id ]}, function(err, pResult2) {
 							Parent.all(function(err, parents) {
 								parents.forEach(function(parent) {
 									parent.prop1.should.be.an.Array;
