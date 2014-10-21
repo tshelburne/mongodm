@@ -60,7 +60,7 @@ describe('the database service', function() {
 		it('calls back with a mapped model by id', function(done) {
 			msDb.collection('models').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, result) {
 				odm.models.find(result._id, function(err, model) {
-					assert(err === null);
+					assert(!err);
 					model.should.not.equal(null);
 					model.should.be.an.instanceof(Model);
 					model.should.have.properties({ prop1: 1, prop2: 2, prop3: 3 });
@@ -72,7 +72,7 @@ describe('the database service', function() {
 		it('calls back with a mapped model by query', function(done) {
 			msDb.collection('models').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, result) {
 				odm.models.find({ prop2: 2 }, function(err, model) {
-					assert(err === null);
+					assert(!err);
 					model.should.not.equal(null);
 					model.should.be.an.instanceof(Model);
 					model.should.have.properties({ prop1: 1, prop2: 2, prop3: 3 });
@@ -92,7 +92,7 @@ describe('the database service', function() {
 		it('calls back with all models in a collection with documents', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				odm.models.all(function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(3);
 					models.forEach(function(model) {
@@ -108,7 +108,7 @@ describe('the database service', function() {
 		it('calls back with all models in a collection modified by a query', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				odm.models.all({prop1: {'$gt': 1}}, function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(2);
 					models[0].prop1.should.equal(2);
@@ -121,7 +121,7 @@ describe('the database service', function() {
 		it('calls back with all models in a collection modified by options sent to find', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				odm.models.all({}, {sort: {prop1: -1}}, function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(3);
 					models[0].prop1.should.equal(3);
@@ -147,7 +147,7 @@ describe('the database service', function() {
 
 		it('inserts new models to the db', function(done) {
 			odm.models.save(new Model(1), function(err, model) {
-				assert(err === null);
+				assert(!err);
 				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
 					doc.should.have.properties({prop1: 1, prop2: null, prop3: null});
 					done();
@@ -157,7 +157,7 @@ describe('the database service', function() {
 
 		it('appends an _id to new models', function(done) {
 			odm.models.save(new Model(1), function(err, model) {
-				assert(err === null);
+				assert(!err);
 				model.should.have.property('_id');
 				model._id.should.be.an.Object;
 				done();
@@ -169,7 +169,7 @@ describe('the database service', function() {
 				odm.models.find(result._id, function(err, model) {
 					model.prop2 = 'new value';
 					odm.models.save(model, function(err, savedModel) {
-						assert(err === null);
+						assert(!err);
 						msDb.collection('models').findOne({_id: model._id}, function(err, doc) {
 							doc.should.have.properties({prop1: 1, prop2: 'new value', prop3: 3});
 							done();
@@ -192,7 +192,7 @@ describe('the database service', function() {
 			odm.models.save(new Model(1), function(err, model1) {
 				odm.models.save(new Model(null, 2), function(err, model2) {
 					odm.models.destroy(model1, function(err, numRemoved) {
-						assert(err === null);
+						assert(!err);
 						assert(numRemoved === 1);
 						msDb.collection('models').count(function(err, count) {
 							count.should.equal(1);
@@ -207,7 +207,7 @@ describe('the database service', function() {
 			odm.models.save(new Model(1), function(err, model1) {
 				odm.models.save(new Model(null, 2), function(err, model2) {
 					odm.models.destroyAll(function(err, numRemoved) {
-						assert(err === null);
+						assert(!err);
 						assert(numRemoved === 2);
 						msDb.collection('models').count(function(err, count) {
 							count.should.equal(0);

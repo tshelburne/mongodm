@@ -41,7 +41,7 @@ describe('a model mapped into the database service', function() {
 		it('calls back with a mapped model by id', function(done) {
 			msDb.collection('models').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, result) {
 				Model.find(result._id, function(err, model) {
-					assert(err === null);
+					assert(!err);
 					model.should.not.equal(null);
 					model.should.be.an.instanceof(Model);
 					model.should.have.properties({ prop1: 1, prop2: 2, prop3: 3 });
@@ -53,7 +53,7 @@ describe('a model mapped into the database service', function() {
 		it('calls back with a mapped model by query', function(done) {
 			msDb.collection('models').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, result) {
 				Model.find({ prop2: 2 }, function(err, model) {
-					assert(err === null);
+					assert(!err);
 					model.should.not.equal(null);
 					model.should.be.an.instanceof(Model);
 					model.should.have.properties({ prop1: 1, prop2: 2, prop3: 3 });
@@ -73,7 +73,7 @@ describe('a model mapped into the database service', function() {
 		it('calls back with all models in a collection with documents', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				Model.all(function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(3);
 					models.forEach(function(model) {
@@ -89,7 +89,7 @@ describe('a model mapped into the database service', function() {
 		it('calls back with all models in a collection modified by a query', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				Model.all({prop1: {'$gt': 1}}, function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(2);
 					models[0].prop1.should.equal(2);
@@ -102,7 +102,7 @@ describe('a model mapped into the database service', function() {
 		it('calls back with all models in a collection modified by options sent to find', function(done) {
 			msDb.collection('models').insert([{prop1: 1}, {prop1: 2}, {prop1: 3}], function(err, docs) {
 				Model.all({}, {sort: {prop1: -1}}, function(err, models) {
-					assert(err === null);
+					assert(!err);
 					models.should.be.an.Array;
 					models.should.have.length(3);
 					models[0].prop1.should.equal(3);
@@ -128,7 +128,7 @@ describe('a model mapped into the database service', function() {
 
 		it('creates a new model and returns the result', function(done) {
 			var model = Model.create({prop1: 1}, function(err, model) {
-				assert(err === null);
+				assert(!err);
 
 				model.should.be.an.instanceof(Model);
 				model.id().should.not.equal(null);
@@ -138,7 +138,7 @@ describe('a model mapped into the database service', function() {
 
 		it('inserts new models to the db', function(done) {
 			var model = Model.create({prop1: 1}, function(err, model) {
-				assert(err === null);
+				assert(!err);
 				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
 					doc.should.have.properties({prop1: 1, prop2: null, prop3: null});
 					done();
@@ -149,7 +149,7 @@ describe('a model mapped into the database service', function() {
 		it('inserts new models to the db', function(done) {
 			var model = new Model(1);
 			model.save(function(err, model) {
-				assert(err === null);
+				assert(!err);
 				msDb.collection('models').findOne({prop1: 1}, function(err, doc) {
 					doc.should.have.properties({prop1: 1, prop2: null, prop3: null});
 					done();
@@ -160,7 +160,7 @@ describe('a model mapped into the database service', function() {
 		it('appends an _id to new models (accessible via #id)', function(done) {
 			var model = new Model(1);
 			model.save(function(err, model) {
-				assert(err === null);
+				assert(!err);
 				model.should.have.property('_id');
 				model.id().should.be.an.Object;
 				model.id().should.equal(model._id);
@@ -173,7 +173,7 @@ describe('a model mapped into the database service', function() {
 				Model.find(result._id, function(err, model) {
 					model.prop2 = 'new value';
 					model.save(function(err, savedModel) {
-						assert(err === null);
+						assert(!err);
 						msDb.collection('models').findOne({_id: model._id}, function(err, doc) {
 							doc.should.have.properties({prop1: 1, prop2: 'new value', prop3: 3});
 							done();
@@ -199,7 +199,7 @@ describe('a model mapped into the database service', function() {
 				var model2 = new Model(null, 2);
 				model2.save(function(err, model2) {
 					model1.destroy(function(err, numRemoved) {
-						assert(err === null);
+						assert(!err);
 						assert(numRemoved === 1);
 						msDb.collection('models').count(function(err, count) {
 							count.should.equal(1);
@@ -216,7 +216,7 @@ describe('a model mapped into the database service', function() {
 				var model2 = new Model(null, 2);
 				model2.save(function(err, model2) {
 					Model.destroyAll(function(err, numRemoved) {
-						assert(err === null);
+						assert(!err);
 						assert(numRemoved === 2);
 						msDb.collection('models').count(function(err, count) {
 							count.should.equal(0);
