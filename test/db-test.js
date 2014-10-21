@@ -30,7 +30,7 @@ describe('the database service', function() {
 				// mapping helpers
 				'toModel', 'toDoc', 'new', 
 				// relations
-				'containsOne', 'containsMany'
+				'containsOne', 'hasOne', 'containsMany', 'hasMany'
 				);
 		});
 
