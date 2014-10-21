@@ -21,9 +21,13 @@ exports.closeDbs = function(done) {
 	});
 };
 
-exports.clearDbs = function(done) {
-	delete odm.models;
-	mongo.collection('models').remove(done);
+exports.clearDbs = function(collection, done) {
+	if (arguments.length === 1) {
+		done = collection;
+		collection = 'models';
+	}
+	delete odm[collection];
+	mongo.collection(collection).remove(done);
 };
 
 function getCleanConstructor() {
