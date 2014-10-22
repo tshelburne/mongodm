@@ -135,7 +135,7 @@ Now when you load a model, it will have all relationships eagerly populated. The
 
 	Example stored documents:
 	- in db.articles: `{ title: 'some title' }`
-	- in db.authors: `{ title: 'some title', article: '1234' }`
+	- in db.authors: `{ username: 'tshelburne', article: '1234' }`
 	
 - These define relationships where the article stores the relation ID:
 	
@@ -144,7 +144,7 @@ Now when you load a model, it will have all relationships eagerly populated. The
 
 	Example stored documents:
 	- in db.articles: `{ title: 'some title', author: '1234' }`
-	- in db.authors: `{ title: 'some title' }`
+	- in db.authors: `{ username: 'tshelburne' }`
 
 	It should be noted that `hasOne` and `hasMany` relationships *do not* ensure the relation is persisted, so save the relation first.
 
