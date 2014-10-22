@@ -12,6 +12,7 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 
 - POJO registration 
 - ActiveRecord-like interface extension
+- Relations
 - Evented lifecycle
 
 
@@ -72,6 +73,80 @@ The interface is simple:
 	article.destroy(function(err, numRmvd) { ... })
 	article.id() // as an alternative to article._id
 
+
+## Relations
+
+This interface is still evolving, since it depends pretty heavily on the odm.{mapper} syntax, and there is little in the way of convenience. However, it does the job, and shipped is better than perfect! I don't anticipate deprecating this version anytime soon, but it will be extended to read more nicely (using constructors, fewer required arguments, etc.).
+
+As before, we create our models:
+
+	var Article = module.exports = function(author, title, body, date) {
+		this.author   = author;
+		this.comments = [];
+
+		this.title  = title;
+		this.body   = body;
+		this.date   = date;
+	}
+
+	var User = module.exports = function(username) {
+		this.username = username;
+		this.articles = [];
+	}
+
+	var Comment = module.exports = function(author, body) {
+		this.author = author;
+		this.body   = body;
+	}
+
+Map the models to collections:
+
+	odm.map(Article, 'articles');
+	odm.map(User, 'users');
+	odm.map(Comment, 'comments');
+
+Map the relationships between models:
+
+	odm.articles.hasOne(odm.authors, 'author');
+
+Or, with a little more class...
+
+	Article.hasOne(odm.authors, 'author');
+	Article.containsMany(odm.comments, 'comments');
+
+	Author.findsMany(odm.articles, 'articles', 'author');
+
+	Comment.hasOne(odm.authors, 'author');
+
+Now when you load a model, it will have all relationships eagerly populated. The interface here is simple as well:
+	
+- These define embedded models, and ensure we get instances of the model class rather than just objects:
+	
+		Article.containsOne(odm.authors, 'author');
+		Article.containsMany(odm.authors, 'authors');
+
+	Example stored documents:
+	- in db.articles: `{ title: 'some title', author: { username: 'tshelburne' } }`
+
+- These define relationships where the relation stores the article ID in the foreign key:
+	
+		Article.findsOne(odm.authors, 'author', 'article');
+		Article.findsMany(odm.authors, 'authors', 'article');
+
+	Example stored documents:
+	- in db.articles: `{ title: 'some title' }`
+	- in db.authors: `{ title: 'some title', article: '1234' }`
+	
+- These define relationships where the article stores the relation ID:
+	
+		Article.hasOne(odm.authors, 'author');
+		Article.hasMany(odm.authors, 'authors');
+
+	Example stored documents:
+	- in db.articles: `{ title: 'some title', author: '1234' }`
+	- in db.authors: `{ title: 'some title' }`
+
+	It should be noted that `hasOne` and `hasMany` relationships *do not* ensure the relation is persisted, so save the relation first.
 
 ## Finding by `all`
 
