@@ -94,12 +94,12 @@ describe('relationships', function() {
 						assert(!child2.parent_id);
 						msDb.collection('parents').findById(parent.id(), function(err, pResult) {
 							assert(!pResult.prop1);
-							msDb.collection('prop1').find({parent_id: pResult._id}).toArray(function(err, cResults) {
+							msDb.collection('prop1').find({parent_id: pResult._id}, {sort: {_id: 1}}).toArray(function(err, cResults) {
 								cResults.should.have.length(2);
 								cResults[0].prop1.should.equal(1);
 								cResults[0].parent_id.should.eql(pResult._id);
 								cResults[1].prop1.should.equal(2);
-								cResults[0].parent_id.should.eql(pResult._id);
+								cResults[1].parent_id.should.eql(pResult._id);
 								done();
 							});
 						});
@@ -114,7 +114,7 @@ describe('relationships', function() {
 				Child.create({prop1: 2}, function(err, child2) {
 					Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
 						msDb.collection('parents').findById(parent.id(), function(err, pResult) {
-							msDb.collection('prop1').find({_id:{$in: pResult.prop1}}).toArray(function(err, cResults) {
+							msDb.collection('prop1').find({_id:{$in: pResult.prop1}}, {sort: {_id: 1}}).toArray(function(err, cResults) {
 								cResults.should.have.length(2);
 								cResults[0].prop1.should.equal(1);
 								cResults[1].prop1.should.equal(2);
