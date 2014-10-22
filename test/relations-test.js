@@ -38,17 +38,16 @@ describe('relationships', function() {
 		
 		it('creates a findsOne relationship', function(done) {
 			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
-			Child.create({ prop1: 1 }, function(err, child) {
-				Parent.create({ prop1: child }, function(err, parent) {
-					assert(!child.parent_id);
-					msDb.collection('parents').findById(parent.id(), function(err, pResult) {
-						assert(!pResult.prop1);
-						msDb.collection('prop1').find({parent_id: pResult._id}).toArray(function(err, cResults) {
-							cResults.should.have.length(1);
-							cResults[0].prop1.should.equal(1);
-							cResults[0].parent_id.should.eql(pResult._id);
-							done();
-						});
+			var child = new Child(1);
+			Parent.create({ prop1: child }, function(err, parent) {
+				assert(!child.parent_id);
+				msDb.collection('parents').findById(parent.id(), function(err, pResult) {
+					assert(!pResult.prop1);
+					msDb.collection('prop1').find({parent_id: pResult._id}).toArray(function(err, cResults) {
+						cResults.should.have.length(1);
+						cResults[0].prop1.should.equal(1);
+						cResults[0].parent_id.should.eql(pResult._id);
+						done();
 					});
 				});
 			});
@@ -87,21 +86,20 @@ describe('relationships', function() {
 		
 		it('creates a findsMany relationship', function(done) {
 			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
-			Child.create({prop1: 1}, function(err, child1) {
-				Child.create({prop1: 2}, function(err, child2) {
-					Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
-						assert(!child1.parent_id);
-						assert(!child2.parent_id);
-						msDb.collection('parents').findById(parent.id(), function(err, pResult) {
-							assert(!pResult.prop1);
-							msDb.collection('prop1').find({parent_id: pResult._id}, {sort: {_id: 1}}).toArray(function(err, cResults) {
-								cResults.should.have.length(2);
-								cResults[0].prop1.should.equal(1);
-								cResults[0].parent_id.should.eql(pResult._id);
-								cResults[1].prop1.should.equal(2);
-								cResults[1].parent_id.should.eql(pResult._id);
-								done();
-							});
+			var child1 = new Child(1);
+			Child.create({prop1: 2}, function(err, child2) {
+				Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
+					assert(!child1.parent_id);
+					assert(!child2.parent_id);
+					msDb.collection('parents').findById(parent.id(), function(err, pResult) {
+						assert(!pResult.prop1);
+						msDb.collection('prop1').find({parent_id: pResult._id}, {sort: {_id: -1}}).toArray(function(err, cResults) {
+							cResults.should.have.length(2);
+							cResults[0].prop1.should.equal(1);
+							cResults[0].parent_id.should.eql(pResult._id);
+							cResults[1].prop1.should.equal(2);
+							cResults[1].parent_id.should.eql(pResult._id);
+							done();
 						});
 					});
 				});
