@@ -20,7 +20,7 @@ describe('a model mapped into the database service', function() {
 	describe('when mapping a model to a collection', function() {
 
 		it('updates the model interface', function() {
-			Model.should.have.keys('find', 'all', 'create', 'destroyAll', 'on');
+			Model.should.have.keys('find', 'all', 'create', 'destroyAll', 'containsOne', 'findsOne', 'hasOne', 'containsMany', 'findsMany', 'hasMany', 'on');
 		});
 
 		it('updates the model prototype interface', function() {

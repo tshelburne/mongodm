@@ -27,7 +27,7 @@ describe('relationships', function() {
 	describe('when writing one to one', function() {
 		
 		it('creates an embedded relationship', function(done) {
-			odm.parents.containsOne(odm.prop1, 'prop1');
+			Parent.containsOne(odm.prop1, 'prop1');
 			Parent.create({ prop1: new Child(1) }, function(err, parent) {
 				msDb.collection('parents').findById(parent.id(), function(err, pResult) {
 					pResult.prop1.should.eql({ prop1: 1, prop2: null, prop3: null });
@@ -37,7 +37,7 @@ describe('relationships', function() {
 		});
 		
 		it('creates a findsOne relationship', function(done) {
-			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsOne(odm.prop1, 'prop1', 'parent_id');
 			var child = new Child(1);
 			Parent.create({ prop1: child }, function(err, parent) {
 				assert(!child.parent_id);
@@ -54,7 +54,7 @@ describe('relationships', function() {
 		});
 
 		it('creates a hasOne relationship', function(done) {
-			odm.parents.hasOne(odm.prop1, 'prop1');
+			Parent.hasOne(odm.prop1, 'prop1');
 			Child.create({ prop1: 1 }, function(err, child) {
 				Parent.create({ prop1: child }, function(err, parent) {
 					msDb.collection('parents').findById(parent.id(), function(err, pResult) {
@@ -73,7 +73,7 @@ describe('relationships', function() {
 	describe('when writing one to many', function() {
 		
 		it('creates an embedded relationship', function(done) {
-			odm.parents.containsMany(odm.prop1, 'prop1');
+			Parent.containsMany(odm.prop1, 'prop1');
 			Parent.create({ prop1: [ new Child(1), new Child(2) ] }, function(err, parent) {
 				msDb.collection('parents').findById(parent.id(), function(err, pResult) {
 					pResult.prop1.should.be.an.Array;
@@ -85,7 +85,7 @@ describe('relationships', function() {
 		});
 		
 		it('creates a findsMany relationship', function(done) {
-			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsMany(odm.prop1, 'prop1', 'parent_id');
 			var child1 = new Child(1);
 			Child.create({prop1: 2}, function(err, child2) {
 				Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
@@ -107,7 +107,7 @@ describe('relationships', function() {
 		});
 
 		it('creates a hasMany relationship', function(done) {
-			odm.parents.hasMany(odm.prop1, 'prop1');
+			Parent.hasMany(odm.prop1, 'prop1');
 			Child.create({prop1: 1}, function(err, child1) {
 				Child.create({prop1: 2}, function(err, child2) {
 					Parent.create({ prop1: [ child1, child2 ] }, function(err, parent) {
@@ -129,7 +129,7 @@ describe('relationships', function() {
 	describe('when reading one to one', function() {
 
 		it('resolves an embedded relationship', function(done) {
-			odm.parents.containsOne(odm.prop1, 'prop1');
+			Parent.containsOne(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: { prop1: 1, prop2: 2, prop3: 3 } }, function(err, pResult) {
 				Parent.find(pResult._id, function(err, parent) {
 					parent.prop1.should.be.an.instanceof.Child;
@@ -142,7 +142,7 @@ describe('relationships', function() {
 		});
 		
 		it('resolves a findsOne relationship', function(done) {
-			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsOne(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult) {
 				msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3, parent_id: pResult._id }, function() {
 					Parent.find(pResult._id, function(err, parent) {
@@ -157,7 +157,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves a hasOne relationship', function(done) {
-			odm.parents.hasOne(odm.prop1, 'prop1');
+			Parent.hasOne(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, cResult) {
 				msDb.collection('parents').save({ prop1: cResult._id }, function(err, pResult) {
 					Parent.find(pResult._id, function(err, parent) {
@@ -172,7 +172,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves embedded relationships with all', function(done) {
-			odm.parents.containsOne(odm.prop1, 'prop1');
+			Parent.containsOne(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: { prop1: 1, prop2: 2, prop3: 3 } }, function(err, pResult1) {
 				msDb.collection('parents').save({ prop1: { prop1: 4, prop2: 5, prop3: 6 } }, function(err, pResult2) {
 					Parent.all(function(err, parents) {
@@ -191,7 +191,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves findsOne relationships with all', function(done) {
-			odm.parents.findsOne(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsOne(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult1) {
 				msDb.collection('parents').save({}, function(err, pResult2) {
 					msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3, parent_id: pResult1._id }, function(err, cResult) {
@@ -214,7 +214,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves hasOne relationships with all', function(done) {
-			odm.parents.hasOne(odm.prop1, 'prop1');
+			Parent.hasOne(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1, prop2: 2, prop3: 3 }, function(err, cResult) {
 				msDb.collection('parents').save({ prop1: cResult._id }, function() {
 					msDb.collection('parents').save({ prop1: cResult._id }, function() {
@@ -239,7 +239,7 @@ describe('relationships', function() {
 	describe('when reading one to many', function() {
 
 		it('resolves an embedded relationship', function(done) {
-			odm.parents.containsMany(odm.prop1, 'prop1');
+			Parent.containsMany(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: [ { prop1: 1 }, { prop1: 2 } ] }, function(err, pResult) {
 				Parent.find(pResult._id, function(err, parent) {
 					parent.prop1.should.be.an.Array;
@@ -254,7 +254,7 @@ describe('relationships', function() {
 		});
 		
 		it('resolves a findsMany relationship', function(done) {
-			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsMany(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult) {
 				msDb.collection('prop1').save({ prop1: 1, parent_id: pResult._id }, function(err, cResult1) {
 					msDb.collection('prop1').save({ prop1: 2, parent_id: pResult._id }, function(err, cResult2) {
@@ -273,7 +273,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves a hasMany relationship', function(done) {
-			odm.parents.hasMany(odm.prop1, 'prop1');
+			Parent.hasMany(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1 }, function(err, cResult1) {
 				msDb.collection('prop1').save({ prop1: 2 }, function(err, cResult2) {
 					msDb.collection('parents').save({ prop1: [ cResult1._id, cResult2._id ] }, function(err, pResult) {
@@ -292,7 +292,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves embedded relationships with all', function(done) {
-			odm.parents.containsMany(odm.prop1, 'prop1');
+			Parent.containsMany(odm.prop1, 'prop1');
 			msDb.collection('parents').save({ prop1: [ { prop1: 1 }, { prop1: 2 } ] }, function(err, pResult1) {
 				msDb.collection('parents').save({prop1: [{prop1: 3}]}, function(err, pResult2) {
 					Parent.all(function(err, parents) {
@@ -312,7 +312,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves findsMany relationships with all', function(done) {
-			odm.parents.findsMany(odm.prop1, 'prop1', 'parent_id');
+			Parent.findsMany(odm.prop1, 'prop1', 'parent_id');
 			msDb.collection('parents').save({}, function(err, pResult1) {
 				msDb.collection('parents').save({}, function(err, pResult2) {
 					msDb.collection('prop1').save({ prop1: 1, parent_id: pResult1._id }, function(err, cResult1) {
@@ -338,7 +338,7 @@ describe('relationships', function() {
 		});
 
 		it('resolves hasMany relationships with all', function(done) {
-			odm.parents.hasMany(odm.prop1, 'prop1');
+			Parent.hasMany(odm.prop1, 'prop1');
 			msDb.collection('prop1').save({ prop1: 1 }, function(err, cResult1) {
 				msDb.collection('prop1').save({ prop1: 2 }, function(err, cResult2) {
 					msDb.collection('parents').save({ prop1: [ cResult1._id, cResult2._id ] }, function(err, pResult1) {
