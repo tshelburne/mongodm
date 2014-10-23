@@ -107,44 +107,44 @@ Map the models to collections:
 
 Map the relationships between models:
 
-	odm.articles.hasOne(odm.authors, 'author');
+	odm.articles.hasOne(odm.users, 'author');
 
 Or, with a little more class...
 
-	Article.hasOne(odm.authors, 'author');
+	Article.hasOne(odm.users, 'author');
 	Article.containsMany(odm.comments, 'comments');
 
 	Author.findsMany(odm.articles, 'articles', 'author');
 
-	Comment.hasOne(odm.authors, 'author');
+	Comment.hasOne(odm.users, 'author');
 
 Now when you load a model, it will have all relationships eagerly populated. The interface here is simple as well:
 	
 - These define embedded models, and ensure we get instances of the model class rather than just objects:
 	
-		Article.containsOne(odm.authors, 'author');
-		Article.containsMany(odm.authors, 'authors');
+		Article.containsOne(odm.users, 'author');
+		Article.containsMany(odm.users, 'authors');
 
 	Example stored documents:
 	- in db.articles: `{ title: 'some title', author: { username: 'tshelburne' } }`
 
 - These define relationships where the relation stores the article ID in the foreign key:
 	
-		Article.findsOne(odm.authors, 'author', 'article');
-		Article.findsMany(odm.authors, 'authors', 'article');
+		Article.findsOne(odm.users, 'author', 'article');
+		Article.findsMany(odm.users, 'authors', 'article');
 
 	Example stored documents:
 	- in db.articles: `{ title: 'some title' }`
-	- in db.authors: `{ username: 'tshelburne', article: '1234' }`
+	- in db.users: `{ username: 'tshelburne', article: '1234' }`
 	
 - These define relationships where the article stores the relation ID:
 	
-		Article.hasOne(odm.authors, 'author');
-		Article.hasMany(odm.authors, 'authors');
+		Article.hasOne(odm.users, 'author');
+		Article.hasMany(odm.users, 'authors');
 
 	Example stored documents:
 	- in db.articles: `{ title: 'some title', author: '1234' }`
-	- in db.authors: `{ username: 'tshelburne' }`
+	- in db.users: `{ username: 'tshelburne' }`
 
 	It should be noted that `hasOne` and `hasMany` relationships *do not* ensure the relation is persisted, so save the relation first.
 
