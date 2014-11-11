@@ -101,4 +101,47 @@ describe('a model with scopes', function() {
 		});
 	});
 
+	describe("default scoping", function() {
+		
+		beforeEach(function() {
+			odm.models.scopeDefault({prop1: 1});
+		});
+
+		it('limits all queries by the scope default', function(done) {
+			Model.create({prop1: 1, prop2: true}, function(err, model1) {
+				Model.create({prop1: 2, prop2: false}, function(err, model2) {
+					Model.create({prop1: 1, prop2: false}, function(err, model3) {
+						Model.create({prop1: 2, prop2: false}, function(err, model4) {
+							Model.good().all(function(err, goodModels) {
+								goodModels.should.eql([model1]);
+								Model.all(function(err, allModels) {
+									allModels.should.eql([model1, model3]);
+									done();
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+
+		it('accepts additional queries to the scope default', function(done) {
+			odm.models.scopeDefault({prop2: false});
+
+			Model.create({prop1: 1, prop2: true}, function(err, model1) {
+				Model.create({prop1: 2, prop2: false}, function(err, model2) {
+					Model.create({prop1: 1, prop2: false}, function(err, model3) {
+						Model.create({prop1: 2, prop2: false}, function(err, model4) {
+							Model.all(function(err, allModels) {
+								allModels.should.eql([model3]);
+								done();
+							});
+						});
+					});
+				});
+			});
+		});
+
+	});
+
 });
