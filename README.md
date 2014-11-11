@@ -13,6 +13,7 @@ MongODM is a simple, low-key interface for mapping a model to a collection. The 
 - POJO registration 
 - ActiveRecord-like interface extension
 - Relations
+- Scopes
 - Evented lifecycle
 
 
@@ -147,6 +148,34 @@ Now when you load a model, it will have all relationships eagerly populated. The
 	- in db.users: `{ username: 'tshelburne' }`
 
 	It should be noted that `hasOne` and `hasMany` relationships *do not* ensure the relation is persisted, so save the relation first.
+
+
+## Scopes
+
+My favorite feature of ActiveRecord - by far - is using scopes to build easily readable and composable query objects. The current implementation in MongODM is pretty trivial, but it does the job for now. The setup is basic:
+
+```
+odm.map(Article, 'articles');
+odm.articles.scope('published', {publishedOn: {'$ne': null}});
+odm.articles.scope('by', function(firstName, lastName) { 
+    return {author: {first: firstName, last: lastName}}; 
+});
+```
+
+Now we can use this scope for a much more readable and usable interface when querying:
+
+```
+Article.published().by('Mark', 'Twain').all({...}, function(err, articles) {...});
+odm.articles.published().all({...}, function(err, articles) {...});
+```
+
+Additionally, we can set up default scopes which will be applied to *every* query made for this model (eventually there will be a one-off override, but I'm feeling lazy):
+
+```
+odm.articles.scopeDefault({publishedOn: {'$ne': null}});
+Article.all(function(err, articles) {...}); // articles will all be published
+```
+
 
 ## Finding by `all`
 
