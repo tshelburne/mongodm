@@ -26,7 +26,7 @@ describe('the database service', function() {
 		it('builds an object with a mappable interface', function() {
 			odm.models.__proto__.should.have.keys(
 				// active record API
-				'find', 'all', 'save', 'destroy', 'destroyAll', 
+				'find', 'all', 'save', 'destroy', 'destroyAll', 'scope', 'scopeDefault',
 				// mapping helpers
 				'toModel', 'toDoc', 'new', 
 				// relations
