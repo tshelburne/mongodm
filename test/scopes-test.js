@@ -101,6 +101,22 @@ describe('a model with scopes', function() {
 		});
 	});
 
+	it('handles scopes with arguments', function(done) {
+		odm.models.scope('withProps', function(value1, value2) { 
+			return {prop1: value1, prop2: value2}; 
+		});
+		Model.create({prop1: 1, prop2: true}, function(err, model1) {
+			Model.create({prop1: 2, prop2: false}, function(err, model2) {
+				Model.create({prop1: 1, prop2: false, prop3: 'set'}, function(err, model3) {
+					Model.withProps(1, false).all(function(err, models) {
+						models.should.eql([model3]);
+						done();
+					});
+				});
+			});
+		});
+	});
+
 	describe("default scoping", function() {
 		
 		beforeEach(function() {
