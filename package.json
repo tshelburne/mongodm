@@ -1,6 +1,6 @@
 {
   "name": "mongodm",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A basic ODM to start up simple projects",
   "main": "index.js",
   "scripts": {
