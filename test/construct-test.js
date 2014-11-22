@@ -1,6 +1,7 @@
 "use strict";
 
 var assert = require('assert')
+  , skin = require('mongoskin')
   , support = require('./support/common')
   , conf = require('./support/config')
   , mongodm = require('../index')
@@ -42,5 +43,14 @@ describe('initializing the service', function() {
 	it('accepts username and password arguments');
 
 	it('passes a list of options on to the mongoskin instance');
+
+	it('exposes the low-level mongoskin instance', function() {
+		testOdm = buildMongOdm();
+		testOdm.base.should.be.a.instanceof(skin.Db);
+	});
+
+	function buildMongOdm() {
+		return mongodm(conf.host, conf.port, conf.name);
+	}
 
 });
